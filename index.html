@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&family=Noto+Sans+TC&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<title>新竹一日遊行程</title>
+
+<style>
+:root {
+  --bg-main:#f9f7f4;
+  --bg-card:#ffffff;
+  --bg-soft:#f3f0eb;
+  --border:rgba(180,164,144,0.2);
+  --text-main:#3d3830;
+  --text-sub:#7a7268;
+  --accent1:#8fa8b8;
+}
+
+/* 基本 */
+body {
+  margin:0;
+  font-family:"M PLUS Rounded 1c","Noto Sans TC",sans-serif;
+  background:var(--bg-main);
+  color:var(--text-main);
+}
+
+.container {
+  padding:16px;
+}
+
+@media (min-width:600px){
+  .container { padding:40px; }
+}
+
+/* 卡片 */
+.card {
+  background:white;
+  border:1.5px solid var(--border);
+  border-radius:20px;
+  padding:16px;
+  margin-bottom:16px;
+}
+
+/* 地圖 */
+#map {
+  height:320px;
+  border-radius:20px;
+  overflow:hidden;
+  border:1.5px solid var(--border);
+}
+
+/* 描述框 */
+#spot-detail {
+  margin-top:12px;
+  background:var(--bg-soft);
+  border-radius:16px;
+  padding:16px;
+  border:1.5px solid var(--border);
+}
+
+#spot-detail h3 {
+  margin:0 0 8px 0;
+}
+
+.sub {
+  color:var(--text-sub);
+  font-size:14px;
+}
+
+/* 按鈕 */
+.btn {
+  display:inline-block;
+  margin-top:10px;
+  padding:8px 16px;
+  border-radius:999px;
+  border:1.5px solid var(--accent1);
+  color:var(--accent1);
+  background:transparent;
+  cursor:pointer;
+}
+
+.btn:hover {
+  background:var(--accent1);
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🌿 新竹一日遊行程</h1>
+
+<div class="card">
+  <h3>行程路線</h3>
+  <p>台北 → 湖口好客文創園區 → 莫內饗宴 → 青草湖 → 關西農會</p>
+</div>
+
+<div class="card">
+  <h3>地圖導覽</h3>
+  <div id="map"></div>
+
+  <!-- 👇 新增描述框 -->
+  <div id="spot-detail">
+    <h3>請點擊地圖景點</h3>
+    <p class="sub">選擇地標後會顯示詳細介紹</p>
+  </div>
+</div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+// 初始化地圖
+const map = L.map('map').setView([24.8, 121.0], 11);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution:'© OpenStreetMap'
+}).addTo(map);
+
+// 景點資料（已加強為完整介紹）
+const spots = [
+  {
+    name:"好客文創園區",
+    lat:24.878,
+    lng:121.045,
+    desc:"以客家文化為主題，重現紅磚拱形街屋與農村生活場景，並結合裝置藝術與農耕文化展示。",
+    detail:"園區以湖口老街為靈感，融合農村信仰與四季農耕文化，並設有藝術裝置與傳統生活展示，是深入體驗客家文化的重要據點。",
+    map:"https://www.google.com/maps?q=湖口好客文創園區"
+  },
+  {
+    name:"莫內饗宴",
+    lat:24.807,
+    lng:120.967,
+    desc:"煙波湖濱館頂級自助餐。",
+    detail:"以印象派莫內為靈感，打造歐式花園風格用餐空間，結合多國料理與在地食材，提供高品質 Buffet 體驗。",
+    map:"https://www.google.com/maps?q=煙波新竹湖濱館"
+  },
+  {
+    name:"青草湖",
+    lat:24.785,
+    lng:120.970,
+    desc:"新竹著名湖景景點。",
+    detail:"可欣賞映月橋與湖畔風光，設有環湖步道與景觀平台，適合散步與拍照，並能從不同角度欣賞湖景。",
+    map:"https://www.google.com/maps?q=青草湖"
+  },
+  {
+    name:"關西農會",
+    lat:24.791,
+    lng:121.177,
+    desc:"在地農產品市場。",
+    detail:"以產地直送為特色，提供新鮮蔬果、米食與客家特色伴手禮，是體驗在地農村生活與採購紀念品的好去處。",
+    map:"https://www.google.com/maps?q=關西農會"
+  }
+];
+
+// 更新下方描述框
+function updateDetail(spot){
+  document.getElementById("spot-detail").innerHTML = `
+    <h3>${spot.name}</h3>
+    <p class="sub">${spot.desc}</p>
+    <p>${spot.detail}</p>
+    <button class="btn" onclick="window.open('${spot.map}','_blank')">
+      開啟 Google 地圖
+    </button>
+  `;
+}
+
+// 加入地標
+spots.forEach(s => {
+  const marker = L.marker([s.lat, s.lng]).addTo(map);
+
+  marker.on('click', () => {
+    updateDetail(s);
+  });
+
+  marker.bindPopup(`<b>${s.name}</b>`);
+});
+</script>
+
+</body>
+</html>
