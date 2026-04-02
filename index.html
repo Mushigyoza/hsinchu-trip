@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- iOS Web App（PNG base64 icon） -->
-<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAACXBIWXMAAAsTAAALEwEAmpwYAAABrUlEQVR4nO3XsQ2DMBAF0YkE0zE0m1A3cZbYwzZgC9sQ1y8mXy5K9i3h3zY7b8sYwAAAAAAAAAAAAAAAHCqk0k7v7y8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLw8G0b4hYQ0k0bQAAAABJRU5ErkJggg==">
-
+<!-- iPhone Web App -->
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/684/684908.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="新竹一日遊">
+<meta name="theme-color" content="#f9f7f4">
 
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&family=Noto+Sans+TC&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
@@ -17,66 +17,75 @@
 
 <style>
 :root {
-  --bg-main:#f9f7f4;
-  --bg-card:#ffffff;
-  --bg-soft:#f3f0eb;
-  --border:rgba(180,164,144,0.2);
-  --text-main:#3d3830;
-  --text-sub:#7a7268;
+  --bg:#f9f7f4;
+  --card:#ffffff;
+  --soft:#f3f0eb;
+  --text:#3d3830;
+  --sub:#7a7268;
   --accent:#8fa8b8;
 }
 
-body {
+body{
   margin:0;
-  font-family:"M PLUS Rounded 1c","Noto Sans TC",sans-serif;
-  background:var(--bg-main);
-  color:var(--text-main);
+  font-family:"M PLUS Rounded 1c","Noto Sans TC";
+  background:var(--bg);
+  color:var(--text);
 }
 
-.container {
-  padding:16px;
-}
-@media(min-width:600px){
-  .container{padding:40px;}
-}
+.container{padding:16px;}
 
-.card {
-  background:white;
+.card{
+  background:var(--card);
   border-radius:20px;
   padding:16px;
   margin-bottom:16px;
-  border:1.5px solid var(--border);
+  border:1px solid rgba(0,0,0,0.05);
 }
 
-#map {
-  height:320px;
-  border-radius:20px;
-  overflow:hidden;
-  border:1.5px solid var(--border);
-}
+.sub{color:var(--sub);}
 
-#detail {
-  margin-top:12px;
-  background:var(--bg-soft);
-  padding:16px;
+/* 地圖 */
+#map{
+  height:300px;
   border-radius:16px;
+  margin-bottom:10px;
 }
 
-.btn {
-  margin-top:10px;
+/* 按鈕 */
+.btn{
+  display:inline-block;
   padding:8px 16px;
   border-radius:999px;
-  border:1.5px solid var(--accent);
+  border:1px solid var(--accent);
   color:var(--accent);
-  background:none;
-  cursor:pointer;
+  text-decoration:none;
+  margin-top:6px;
 }
 .btn:hover{
   background:var(--accent);
   color:white;
 }
 
-.sub{color:var(--text-sub);}
+/* 倒數 */
+#countdown span{
+  font-size:22px;
+  color:var(--accent);
+}
+
+.progress{
+  background:var(--soft);
+  height:10px;
+  border-radius:999px;
+  overflow:hidden;
+  margin-top:10px;
+}
+
+.bar{
+  height:100%;
+  width:0%;
+  background:var(--accent);
+  transition:0.5s;
+}
 </style>
 </head>
 
@@ -86,19 +95,29 @@ body {
 
 <h1>🌿 新竹一日遊</h1>
 
+<!-- 倒數 -->
 <div class="card">
-  <h3>行程</h3>
-  <p>台北 → 好客文創園區 → 莫內饗宴 → 青草湖 → 關西農會</p>
+  <h3>⏳ 倒數</h3>
+  <div id="countdown">載入中</div>
+  <div class="progress"><div id="bar" class="bar"></div></div>
 </div>
 
+<!-- 地圖 -->
 <div class="card">
-  <h3>地圖導覽</h3>
+  <h3>🗺️ 行程地圖</h3>
   <div id="map"></div>
+  <div id="detail" class="sub">請點擊地圖景點查看詳細資訊</div>
+</div>
 
-  <div id="detail">
-    <h3>請點擊地圖景點</h3>
-    <p class="sub">點擊地標查看詳細介紹</p>
-  </div>
+<!-- 行前通知 -->
+<div class="card">
+  <h3>📢 行前通知</h3>
+  <p><b>集合：</b>07:30 台北車站南二門</p>
+  <p><b>出發：</b>08:00</p>
+  <p class="sub">請攜帶員工證、穿舒適鞋、準時集合</p>
+
+  <a href="tel:0935734109" class="btn">📞 聯絡領隊</a>
+  <a href="https://maps.google.com/?q=台北車站南二門" class="btn" target="_blank">📍 導航集合地點</a>
 </div>
 
 </div>
@@ -106,54 +125,63 @@ body {
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-const map = L.map('map').setView([24.8,121.0],11);
-
+// ===== 地圖 =====
+const map = L.map('map');
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
 const spots = [
-{
-name:"好客文創園區",
-lat:24.878,lng:121.045,
-desc:"客家文化園區",
-detail:"紅磚街屋與農村文化，展示客家生活與藝術。",
-map:"https://www.google.com/maps?q=湖口好客文創園區"
-},
-{
-name:"莫內饗宴",
-lat:24.807,lng:120.967,
-desc:"高級自助餐",
-detail:"歐式風格 Buffet，結合在地與國際料理。",
-map:"https://www.google.com/maps?q=煙波新竹湖濱館"
-},
-{
-name:"青草湖",
-lat:24.785,lng:120.970,
-desc:"湖景步道",
-detail:"映月橋與湖畔景觀，適合散步拍照。",
-map:"https://www.google.com/maps?q=青草湖"
-},
-{
-name:"關西農會",
-lat:24.791,lng:121.177,
-desc:"農產品市場",
-detail:"在地農產與客家伴手禮採購。",
-map:"https://www.google.com/maps?q=關西農會"
-}
+{n:"好客文創園區",lat:24.878,lng:121.045,desc:"客家文化園區",detail:"紅磚街屋與農村文化體驗",map:"https://maps.google.com?q=湖口好客文創園區"},
+{n:"莫內饗宴",lat:24.807,lng:120.967,desc:"高級自助餐",detail:"煙波湖濱館Buffet",map:"https://maps.google.com?q=煙波新竹湖濱館"},
+{n:"青草湖",lat:24.785,lng:120.970,desc:"湖景步道",detail:"映月橋與湖畔景觀",map:"https://maps.google.com?q=青草湖"},
+{n:"關西農會",lat:24.791,lng:121.177,desc:"農產市場",detail:"客家伴手禮與農產品",map:"https://maps.google.com?q=關西農會"}
 ];
 
-function update(s){
-document.getElementById("detail").innerHTML=`
-<h3>${s.name}</h3>
-<p class="sub">${s.desc}</p>
-<p>${s.detail}</p>
-<button class="btn" onclick="window.open('${s.map}')">導航</button>
-`;
-}
+const bounds=[];
 
 spots.forEach(s=>{
-let m=L.marker([s.lat,s.lng]).addTo(map);
-m.on('click',()=>update(s));
+  const m=L.marker([s.lat,s.lng]).addTo(map);
+  bounds.push([s.lat,s.lng]);
+
+  m.on('click',()=>{
+    document.getElementById("detail").innerHTML=
+    `<h4>${s.n}</h4>
+    <p>${s.desc}</p>
+    <p class="sub">${s.detail}</p>
+    <a href="${s.map}" target="_blank" class="btn">📍 導航</a>`;
+  });
 });
+
+map.fitBounds(bounds,{padding:[30,30]});
+
+// ===== 倒數 =====
+const start=new Date("2026-04-12T07:30:00");
+const end=new Date("2026-04-12T08:00:00");
+
+function run(){
+ let now=new Date();
+ let diff=end-now;
+
+ if(diff<=0){
+  countdown.innerHTML="🎉 已出發！";
+  bar.style.width="100%";
+  return;
+ }
+
+ let d=Math.floor(diff/86400000);
+ let h=Math.floor(diff/3600000)%24;
+ let m=Math.floor(diff/60000)%60;
+ let s=Math.floor(diff/1000)%60;
+
+ countdown.innerHTML=
+ `${d}天 ${h}時 ${m}分 <span>${s}</span>秒`;
+
+ let p=(now-start)/(end-start)*100;
+ if(p<0)p=0;if(p>100)p=100;
+ bar.style.width=p+"%";
+}
+
+setInterval(run,1000);
+run();
 </script>
 
 </body>
