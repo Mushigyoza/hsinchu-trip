@@ -4,166 +4,178 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- iPhone Web App -->
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/684/684908.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="新竹一日遊">
-<meta name="theme-color" content="#f9f7f4">
-
-<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&family=Noto+Sans+TC&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&family=Noto+Sans+TC&display=swap" rel="stylesheet">
 
-<title>新竹一日遊</title>
+<title>新竹導覽App</title>
 
 <style>
-:root {
-  --bg:#f9f7f4;
-  --card:#ffffff;
-  --soft:#f3f0eb;
-  --text:#3d3830;
-  --sub:#7a7268;
-  --accent:#8fa8b8;
-}
-
 body{
   margin:0;
   font-family:"M PLUS Rounded 1c","Noto Sans TC";
-  background:var(--bg);
-  color:var(--text);
+  background:#f9f7f4;
 }
-
 .container{padding:16px;}
 
 .card{
-  background:var(--card);
+  background:#fff;
   border-radius:20px;
   padding:16px;
   margin-bottom:16px;
-  border:1px solid rgba(0,0,0,0.05);
 }
 
-.sub{color:var(--sub);}
+/* 路線說明 */
+.route{
+  background:#f3f0eb;
+  padding:10px;
+  border-radius:14px;
+  font-size:14px;
+}
+
+/* 倒數方框 */
+.count-box{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+.time{
+  background:#f3f0eb;
+  padding:10px;
+  border-radius:12px;
+  min-width:60px;
+  text-align:center;
+}
+.time span{
+  font-size:22px;
+  color:#8fa8b8;
+}
 
 /* 地圖 */
-#map{
-  height:300px;
-  border-radius:16px;
-  margin-bottom:10px;
+#map{height:300px;border-radius:16px;}
+
+/* 卡片 */
+.active{
+  border:2px solid #8fa8b8;
+  background:#eef3f6;
 }
 
-/* 按鈕 */
 .btn{
-  display:inline-block;
-  padding:8px 16px;
+  padding:10px 16px;
   border-radius:999px;
-  border:1px solid var(--accent);
-  color:var(--accent);
-  text-decoration:none;
-  margin-top:6px;
-}
-.btn:hover{
-  background:var(--accent);
-  color:white;
-}
-
-/* 倒數 */
-#countdown span{
-  font-size:22px;
-  color:var(--accent);
-}
-
-.progress{
-  background:var(--soft);
-  height:10px;
-  border-radius:999px;
-  overflow:hidden;
+  border:1px solid #8fa8b8;
+  background:none;
   margin-top:10px;
-}
-
-.bar{
-  height:100%;
-  width:0%;
-  background:var(--accent);
-  transition:0.5s;
 }
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
-<h1>🌿 新竹一日遊</h1>
+<h2>🌿 新竹導覽</h2>
 
 <!-- 倒數 -->
 <div class="card">
   <h3>⏳ 倒數</h3>
-  <div id="countdown">載入中</div>
-  <div class="progress"><div id="bar" class="bar"></div></div>
+
+  <div class="count-box">
+    <div class="time"><span id="d">0</span><br>天</div>
+    <div class="time"><span id="h">0</span><br>時</div>
+    <div class="time"><span id="m">0</span><br>分</div>
+    <div class="time"><span id="s">0</span><br>秒</div>
+  </div>
+</div>
+
+<!-- 路線順序 -->
+<div class="card route">
+  ① 好客文創園區 → ② 莫內饗宴 → ③ 青草湖 → ④ 關西農會
 </div>
 
 <!-- 地圖 -->
 <div class="card">
-  <h3>🗺️ 行程地圖</h3>
   <div id="map"></div>
-  <div id="detail" class="sub">請點擊地圖景點查看詳細資訊</div>
 </div>
 
-<!-- 行前通知 -->
-<div class="card">
-  <h3>📢 行前通知</h3>
-  <p><b>集合：</b>07:30 台北車站南二門</p>
-  <p><b>出發：</b>08:00</p>
-  <p class="sub">請攜帶員工證、穿舒適鞋、準時集合</p>
+<!-- 卡片 -->
+<div id="cards"></div>
 
-  <a href="tel:0935734109" class="btn">📞 聯絡領隊</a>
-  <a href="https://maps.google.com/?q=台北車站南二門" class="btn" target="_blank">📍 導航集合地點</a>
-</div>
+<button class="btn" onclick="nextSpot()">➡ 下一站</button>
 
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-// ===== 地圖 =====
-const map = L.map('map');
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-const spots = [
-{n:"好客文創園區",lat:24.878,lng:121.045,desc:"客家文化園區",detail:"紅磚街屋與農村文化體驗",map:"https://maps.google.com?q=湖口好客文創園區"},
-{n:"莫內饗宴",lat:24.807,lng:120.967,desc:"高級自助餐",detail:"煙波湖濱館Buffet",map:"https://maps.google.com?q=煙波新竹湖濱館"},
-{n:"青草湖",lat:24.785,lng:120.970,desc:"湖景步道",detail:"映月橋與湖畔景觀",map:"https://maps.google.com?q=青草湖"},
-{n:"關西農會",lat:24.791,lng:121.177,desc:"農產市場",detail:"客家伴手禮與農產品",map:"https://maps.google.com?q=關西農會"}
+// ===== 資料 =====
+const spots=[
+{n:"① 好客文創園區",lat:24.878,lng:121.045,desc:"客家文化"},
+{n:"② 莫內饗宴",lat:24.807,lng:120.967,desc:"Buffet"},
+{n:"③ 青草湖",lat:24.785,lng:120.970,desc:"湖景"},
+{n:"④ 關西農會",lat:24.791,lng:121.177,desc:"伴手禮"}
 ];
 
+let current=0;
+
+// ===== 地圖 =====
+const map=L.map('map');
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
 const bounds=[];
+const markers=[];
 
-spots.forEach(s=>{
-  const m=L.marker([s.lat,s.lng]).addTo(map);
-  bounds.push([s.lat,s.lng]);
-
-  m.on('click',()=>{
-    document.getElementById("detail").innerHTML=
-    `<h4>${s.n}</h4>
-    <p>${s.desc}</p>
-    <p class="sub">${s.detail}</p>
-    <a href="${s.map}" target="_blank" class="btn">📍 導航</a>`;
-  });
+spots.forEach((s,i)=>{
+ let m=L.marker([s.lat,s.lng]).addTo(map);
+ markers.push(m);
+ bounds.push([s.lat,s.lng]);
+ m.on('click',()=>selectSpot(i));
 });
 
-map.fitBounds(bounds,{padding:[30,30]});
+map.fitBounds(bounds);
 
-// ===== 倒數 =====
-const start=new Date("2026-04-12T07:30:00");
+// 路線
+L.polyline(spots.map(s=>[s.lat,s.lng]),{
+ color:"#8fa8b8",
+ weight:4
+}).addTo(map);
+
+// ===== 卡片 =====
+function render(){
+ let html="";
+ spots.forEach((s,i)=>{
+  html+=`
+  <div class="card ${i===current?'active':''}" onclick="selectSpot(${i})">
+  <b>${s.n}</b><br>${s.desc}
+  </div>`;
+ });
+ document.getElementById("cards").innerHTML=html;
+}
+render();
+
+// ===== 控制 =====
+function selectSpot(i){
+ current=i;
+ render();
+ map.setView([spots[i].lat,spots[i].lng],13);
+}
+
+function nextSpot(){
+ current++;
+ if(current>=spots.length) current=0;
+ selectSpot(current);
+}
+
+// ===== 倒數（方框版）=====
 const end=new Date("2026-04-12T08:00:00");
 
-function run(){
+function countdown(){
  let now=new Date();
  let diff=end-now;
 
  if(diff<=0){
-  countdown.innerHTML="🎉 已出發！";
-  bar.style.width="100%";
+  document.getElementById("d").innerText=0;
+  document.getElementById("h").innerText=0;
+  document.getElementById("m").innerText=0;
+  document.getElementById("s").innerText=0;
   return;
  }
 
@@ -172,16 +184,14 @@ function run(){
  let m=Math.floor(diff/60000)%60;
  let s=Math.floor(diff/1000)%60;
 
- countdown.innerHTML=
- `${d}天 ${h}時 ${m}分 <span>${s}</span>秒`;
-
- let p=(now-start)/(end-start)*100;
- if(p<0)p=0;if(p>100)p=100;
- bar.style.width=p+"%";
+ document.getElementById("d").innerText=d;
+ document.getElementById("h").innerText=h;
+ document.getElementById("m").innerText=m;
+ document.getElementById("s").innerText=s;
 }
 
-setInterval(run,1000);
-run();
+setInterval(countdown,1000);
+countdown();
 </script>
 
 </body>
