@@ -87,68 +87,7 @@ body{
     <div class="time"><span id="s">0</span><br>秒</div>
   </div>
 </div>
-<div class="card">
 
-  <h3>📢 行前通知</h3>
-
-  <!-- 集合資訊 -->
-  <div style="background:#f3f0eb;padding:12px;border-radius:12px;margin-bottom:10px;">
-    <b>集合資訊</b><br>
-    日期：2026/04/12（日）<br>
-    報到：07:30<br>
-    出發：08:00<br>
-    地點：台北車站 南二門
-  </div>
-<div class="card">
-
-  <div onclick="toggleMap()" style="
-  cursor:pointer;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-">
-  <b>📍 集合地點</b>
-  <span id="arrow">▼</span>
-</div>
-
-  <div id="mapBox" style="display:none;margin-top:10px;">
-    <img src="meeting.png" style="width:100%;border-radius:12px;">
-    
-    <div style="margin-top:8px;">
-      <a href="https://maps.google.com/?q=台北車站南二門" target="_blank" class="btn">
-        📍 導航到集合點
-      </a>
-    </div>
-  </div>
-
-</div>
-  <!-- 聯絡 -->
-  <div style="margin-bottom:10px;">
-    <b>聯絡人</b><br>
-    1車：張家基 0935-734109<br>
-    2車：葉淑宜 0936-140796<br>
-    緊急：鄧秀怡 0985-106242
-  </div>
-
-  <!-- 注意事項 -->
-  <div style="margin-bottom:10px;">
-    <b>注意事項</b>
-    <ul style="padding-left:18px;color:#7a7268;">
-      <li>請準時報到，逾時不退費</li>
-      <li>需攜帶員工識別證正本</li>
-      <li>不得冒名頂替</li>
-      <li>請配合團體行程，不可脫隊</li>
-    </ul>
-  </div>
-
-  <!-- 快速操作 -->
-  <div>
-    <a href="tel:0935734109" class="btn">📞 聯絡領隊</a>
-    <a href="https://maps.google.com/?q=台北車站南二門" target="_blank" class="btn">📍 導航集合</a>
-  </div>
-
-</div>
-  
 <!-- 路線 -->
 <div class="card route">
   ① 好客文創園區 → ② 莫內饗宴 → ③ 青草湖 → ④ 關西農會
@@ -158,6 +97,34 @@ body{
 <div class="card">
   <div id="map"></div>
   <div id="detail">請點擊地圖查看</div>
+</div>
+
+<!-- 行前通知 -->
+<div class="card">
+  <h3>📢 行前通知</h3>
+  集合：07:30 台北車站南二門<br>
+  出發：08:00<br><br>
+
+  <a href="tel:0935734109" class="btn">📞 聯絡領隊</a>
+  <a href="https://maps.google.com/?q=台北車站南二門" target="_blank" class="btn">📍 導航集合</a>
+</div>
+
+<!-- 集合地點（收合） -->
+<div class="card">
+
+  <div onclick="toggleMap()" style="cursor:pointer;display:flex;justify-content:space-between;">
+    <b>📍 集合地點位置圖</b>
+    <span id="arrow">▼</span>
+  </div>
+
+  <div id="mapBox" style="display:none;margin-top:10px;">
+    <img src="meeting.png" style="width:100%;border-radius:12px;">
+    
+    <a href="https://maps.google.com/?q=台北車站南二門" target="_blank" class="btn">
+      📍 導航到集合點
+    </a>
+  </div>
+
 </div>
 
 <!-- 卡片 -->
@@ -170,32 +137,26 @@ body{
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
+// ===== 收合 =====
+function toggleMap(){
+  const box=document.getElementById("mapBox");
+  const arrow=document.getElementById("arrow");
+
+  if(box.style.display==="none"){
+    box.style.display="block";
+    arrow.innerText="▲";
+  }else{
+    box.style.display="none";
+    arrow.innerText="▼";
+  }
+}
+
 // ===== 景點 =====
 const spots=[
-{
- n:"① 好客文創園區",
- lat:24.878,lng:121.045,
- desc:"客家文化園區",
- map:"https://maps.google.com?q=湖口好客文創園區"
-},
-{
- n:"② 莫內饗宴",
- lat:24.7751,lng:120.9676,
- desc:"煙波大飯店 新竹湖濱館",
- map:"https://maps.app.goo.gl/EyJTJyAen8XLJcn78"
-},
-{
- n:"③ 青草湖",
- lat:24.785,lng:120.970,
- desc:"湖景步道",
- map:"https://maps.google.com?q=青草湖"
-},
-{
- n:"④ 關西農會",
- lat:24.791,lng:121.177,
- desc:"農產市集",
- map:"https://maps.google.com?q=關西農會"
-}
+{n:"① 好客文創園區",lat:24.878,lng:121.045,desc:"客家文化園區",map:"https://maps.google.com?q=湖口好客文創園區"},
+{n:"② 莫內饗宴",lat:24.8015,lng:120.9713,desc:"煙波大飯店 新竹湖濱館",map:"https://maps.app.goo.gl/EyJTJyAen8XLJcn78"},
+{n:"③ 青草湖",lat:24.785,lng:120.970,desc:"湖景步道",map:"https://maps.google.com?q=青草湖"},
+{n:"④ 關西農會",lat:24.791,lng:121.177,desc:"農產市集",map:"https://maps.google.com?q=關西農會"}
 ];
 
 let current=0;
@@ -214,7 +175,6 @@ spots.forEach((s,i)=>{
 
  m.on('click',()=>{
   selectSpot(i);
-
   document.getElementById("detail").innerHTML=
   `<b>${s.n}</b><br>${s.desc}<br>
    <a href="${s.map}" target="_blank" class="btn">📍 導航</a>`;
@@ -280,20 +240,6 @@ function countdown(){
 
 setInterval(countdown,1000);
 countdown();
-
-
-function toggleMap(){
-  const box = document.getElementById("mapBox");
-  const arrow = document.getElementById("arrow");
-
-  if(box.style.display === "none"){
-    box.style.display = "block";
-    arrow.innerText = "▲";
-  }else{
-    box.style.display = "none";
-    arrow.innerText = "▼";
-  }
-}
 </script>
 
 </body>
