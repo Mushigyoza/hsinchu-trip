@@ -99,7 +99,29 @@ body{
     出發：08:00<br>
     地點：台北車站 南二門
   </div>
+<div class="card">
 
+  <div onclick="toggleMap()" style="
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+">
+  <b>📍 集合地點</b>
+  <span id="arrow">▼</span>
+</div>
+
+  <div id="mapBox" style="display:none;margin-top:10px;">
+    <img src="meeting.png" style="width:100%;border-radius:12px;">
+    
+    <div style="margin-top:8px;">
+      <a href="https://maps.google.com/?q=台北車站南二門" target="_blank" class="btn">
+        📍 導航到集合點
+      </a>
+    </div>
+  </div>
+
+</div>
   <!-- 聯絡 -->
   <div style="margin-bottom:10px;">
     <b>聯絡人</b><br>
@@ -258,6 +280,20 @@ function countdown(){
 
 setInterval(countdown,1000);
 countdown();
+
+
+function toggleMap(){
+  const box = document.getElementById("mapBox");
+  const arrow = document.getElementById("arrow");
+
+  if(box.style.display === "none"){
+    box.style.display = "block";
+    arrow.innerText = "▲";
+  }else{
+    box.style.display = "none";
+    arrow.innerText = "▼";
+  }
+}
 </script>
 
 </body>
